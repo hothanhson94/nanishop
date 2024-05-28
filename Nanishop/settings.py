@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure--&d8+veb4^r*c*7%kt%w3(-*r+7mdvdi^0+t63x^r_4lb_=gfp
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['nanishop.herokuapp.com', 'localhost']
 
 
 # Application definition
