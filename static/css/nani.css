@@ -1,0 +1,23 @@
+/* Filter */
+.filter-btn {
+    margin: 5px;
+}
+
+.brands__content{
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%
+}
+
+.brands__content>.list-brand{
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%
+}
+
+@media screen and (max-width: 767px) {
+    .brands__content>.list-brand {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+    }
+}

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block title %}{{category.name}} | {{category.description}}{% endblock %}
+{% block category_detail %}
+<!-- SECTION -->
+<div class="section">
+    <div class="container">
+        <div class="row">
+            <!-- Brands Content -->
+            <div class="brands__content">
+                <div class="list-brand col-2">
+                    {% for brand in brands %}
+                    <a href="#" class="brand-btn"><img src="{{ brand.image.url }}" alt="{{ brand.name }}"></a>
+                    {% endfor %}
+                </div>
+            </div>
+            <!-- /Brands Filter -->
+        </div>
+    </div>
+</div>
+<!-- /SECTION -->
+{% endblock category_detail %}
