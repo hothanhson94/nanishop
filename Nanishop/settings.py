@@ -34,7 +34,7 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
-ROOT_URLCONF = 'Nanishop.urls'
+ROOT_URLCONF = 'nanishop.urls'
 
 TEMPLATES = [
     {
@@ -53,7 +53,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'Nanishop.wsgi.application'
+WSGI_APPLICATION = 'nanishop.wsgi.application'
 
 DATABASES = {
     'default': {
