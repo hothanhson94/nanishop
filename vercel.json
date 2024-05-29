@@ -2,25 +2,18 @@
   "version": 2,
   "builds": [
     {
-      "src": "Nanishop/wsgi.py",
+      "src": "nanishop/wsgi.py",
       "use": "@vercel/python",
       "config": {
         "maxLambdaSize": "15mb",
-        "runtime": "python3.11.4"
-      }
-    },
-    {
-      "src": "build_files.sh",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "staticfiles"
+        "runtime": "python3.11"
       }
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "Nanishop/wsgi.py"
+      "dest": "nanishop/wsgi.py"
     }
   ]
 }
