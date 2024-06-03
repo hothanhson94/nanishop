@@ -1,0 +1,50 @@
+{% load static %}
+{% load custom_filters %}
+<!-- product -->
+<div class="row">
+    {% if no_products_found %}
+        <p>Không có sản phẩm nào phù hợp với tiêu chí tìm kiếm!</p>
+        <a href="{% url 'products:category_detail' category_slug=category.slug %}">Xem tất cả sản phẩm</a>
+    {% else %}
+        {% for product in page_obj %}
+            <div class="col-md-3 col-xs-6">
+                <div class="product">
+                    <div class="product-img">
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" height="210">
+                        <div class="product-label">
+                            {% if product.promotion %}
+                                <span class="sale">-{{ product.promotion_discount }}%</span>
+                            {% endif %}
+                            {% if product.new %}
+                                <span class="new">NEW</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="product-body">
+                        <p class="product-category">{{ product.category.name }}</p>
+                        <h3 class="product-name"><a href="{% url 'products:product_detail' product.slug %}">{{ product.name|slice:":40" }}{% if product.name|length > 40 %}...{% endif %}</a></h3>
+                        {% if product.promotion %}
+                            <h4 class="product-price">{{ product.price_after_discount|currency }}₫ <del class="product-old-price">{{ product.price|currency }}₫</del></h4>
+                        {% else %}
+                            <h4 class="product-price">{{ product.price|currency }}₫</h4>
+                        {% endif %}
+                        <div class="product-rating">
+                            {% for i in "12345" %}
+                                <i class="fa fa-star{% if product.rating < i %}-o{% endif %}"></i>
+                            {% endfor %}
+                        </div>
+                        <div class="product-btns">
+                            <button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
+                            <button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
+                            <button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
+                        </div>
+                    </div>
+                    <div class="add-to-cart">
+                        <button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+<!-- /product -->

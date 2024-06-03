@@ -1,10 +1,21 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.template.loader import render_to_string
-from .models import Category, Product, Brand
+from .models import Category, Product, Brand, Feature, ProductFeature
 from django.core.paginator import Paginator,EmptyPage, PageNotAnInteger
 from .forms import ProductFilterForm
 import random
+
+def home(request):
+    categories = Category.objects.all()
+    products_by_category = {category.slug: Product.objects.filter(category=category, new=True) for category in categories}
+    products_by_top_selling = {category.slug: Product.objects.filter(category=category, top_selling=True) for category in categories}
+    context={
+        'products_by_category': products_by_category,
+        'products_by_top_selling': products_by_top_selling,
+        'categories': categories,
+    }
+    return render(request, 'index.html', context)
 
 def product_list(request, category_slug=None):
     category = None
@@ -104,15 +115,58 @@ def product_detail(request, product_slug):
 
 def category_detail(request, category_slug):
     category = get_object_or_404(Category, slug=category_slug)
-    products = Product.objects.filter(category=category)
+    products = Product.objects.filter(category=category, available=True)
+    features = Feature.objects.filter(category=category)
+    brands = Brand.objects.filter(products__category=category).distinct()
+    categories = Category.objects.all()
+
+    brand_id = request.GET.get('brand')
+    feature_id = request.GET.get('feature')
+    sort_by = request.GET.get('sort_by')
+    new_only = request.GET.get('new') == 'true'
+    promotion_only = request.GET.get('promotion') == 'true'
+
+    # Lọc sản phẩm theo thương hiệu nếu có
+    if brand_id:
+        products = products.filter(brand_id=brand_id)
+
+    # Lọc sản phẩm theo tính năng nếu có
+    if feature_id:
+        products = products.filter(product_features__feature_id=feature_id)
+
+    # Lọc sản phẩm mới nếu được yêu cầu
+    if new_only:
+        products = products.filter(new=True)
+
+    # Lọc sản phẩm giảm giá nếu được yêu cầu
+    if promotion_only:
+        products = products.filter(promotion=True)
+
+    # Sắp xếp sản phẩm
+    if sort_by == 'price_asc':
+        products = products.order_by('price')
+    elif sort_by == 'price_desc':
+        products = products.order_by('-price')
+    else:
+        products = products.order_by('id')  # Default sorting
 
     # Phân trang
-    paginator = Paginator(products, 10)  # 10 sản phẩm mỗi trang
+    paginator = Paginator(products, 12)  # 12 sản phẩm mỗi trang
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    brands = Brand.objects.filter(products__category=category).distinct()
 
-    categories = Category.objects.all()
+    remaining_products_count = max(0, paginator.count - (page_obj.number * 12))
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        products_html = render_to_string('products/category_detail_content.html', {
+            'page_obj': page_obj,
+            'category': category,
+            'no_products_found': not page_obj.object_list.exists()
+        }, request=request)
+        return JsonResponse({
+            'products_html': products_html,
+            'remaining_products_count': remaining_products_count
+        })
 
     context = {
         'category': category,
@@ -120,5 +174,8 @@ def category_detail(request, category_slug):
         'page_obj': page_obj,
         'brands': brands,
         'categories': categories,
+        'features': features,
+        'remaining_products_count': remaining_products_count
     }
     return render(request, 'products/category_detail.html', context)
+

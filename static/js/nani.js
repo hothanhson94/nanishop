@@ -33,4 +33,26 @@ $(document).ready(function(){
         });
     });
 });
-// Ajax xử lý phân trang
+
+// Lấy nút
+const scrollToTopBtn = document.getElementById("scrollToTopBtn");
+
+// Khi người dùng cuộn xuống 150px từ đầu trang, hiển thị nút
+window.onscroll = function() {
+    scrollFunction();
+};
+
+function scrollFunction() {
+    if (document.body.scrollTop > 150 || document.documentElement.scrollTop > 150) {
+        scrollToTopBtn.style.display = "block";
+    } else {
+        scrollToTopBtn.style.display = "none";
+    }
+}
+
+// Khi người dùng nhấp vào nút, cuộn lên đầu trang
+scrollToTopBtn.addEventListener("click", function() {
+    document.body.scrollTop = 0; // Dành cho Safari
+    document.documentElement.scrollTop = 0; // Dành cho Chrome, Firefox, IE và Opera
+});
+

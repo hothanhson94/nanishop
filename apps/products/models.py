@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 from django.db import models
 from decimal import Decimal
+from django.urls import reverse
 
 class Category(models.Model):
     name = models.CharField(max_length=255)
@@ -10,6 +11,9 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('products:category_detail', kwargs={'category_slug': self.slug})
 
 # Hàm custom upload image brands path
 def brand_image_upload_to(instance, filename):
@@ -60,3 +64,16 @@ class Product(models.Model):
             discount = self.promotion_discount / Decimal('100')
             return self.price * (Decimal('1') - discount)
         return self.price
+class Feature(models.Model):
+    name = models.CharField(max_length=255)
+    category = models.ForeignKey(Category, related_name='features', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.name} ({self.category.name})"
+
+class ProductFeature(models.Model):
+    product = models.ForeignKey(Product, related_name='product_features', on_delete=models.CASCADE)
+    feature = models.ForeignKey(Feature, related_name='product_features', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.product.name} - {self.feature.name}"

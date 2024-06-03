@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Danh sách đơn hàng</h2>
+<ul>
+    {% for order in orders %}
+        <li>
+            <a href="{% url 'order_detail' order.id %}">{{ order.product.name }} - Số lượng: {{ order.quantity }}</a>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

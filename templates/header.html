@@ -1,0 +1,183 @@
+
+{% load static %}
+<header>
+    <!-- TOP HEADER -->
+    <div id="top-header" class="bg-dark text-white py-2">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-10">
+                    <ul class="header-links d-flex list-unstyled">
+                        <li class="me-3"><a href="#"><i class="fa fa-phone"></i> 963245654</a></li>
+                        <li class="me-3"><a href="#"><i class="fa fa-envelope-o"></i> Nanishop@gmail.com</a></li>
+                        <li><a href="#"><i class="fa fa-map-marker"></i> Thuận An, Bình Dương</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2 text-end">
+                    <ul class="header-links d-flex list-unstyled">
+                        {% if user.is_authenticated %}
+                            <li><a href="#"><i class="fa fa-user-o"></i>Xin chào, {{ profile.user }}</a></li>
+                            {% comment %} <li><a href="{% url 'profile' %}">Hồ sơ</a></li>
+                            <li><a href="{% url 'favorite_list' %}">Yêu thích</a></li>
+                            <li><a href="{% url 'cart' %}">Giỏ hàng</a></li> {% endcomment %}
+                            <li><a href="{% url 'logout' %}">Đăng xuất</a></li>
+                        {% else %}
+                            <li><a href="{% url 'login' %}">Đăng nhập</a></li>
+                            <li><a href="{% url 'register' %}">Đăng ký</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /TOP HEADER -->
+    <!-- MAIN HEADER -->
+    <div id="header" class="py-3">
+        <div class="container">
+            <div class="row align-items-center">
+                <!-- LOGO -->
+                <div class="col-md-3">
+                    <div class="header-logo">
+                        <a href="{% url 'index' %}" class="logo">
+                            <img src="{% static 'images/logo.png' %}" alt="">
+                        </a>
+                    </div>
+                </div>
+                <!-- /LOGO -->
+                <!-- SEARCH BAR -->
+                <div class="col-md-6">
+                    <div class="header-search">
+                        <form class="d-flex">
+                            <input class="form-control ms-2 input" placeholder="Search here">
+                            <button class="btn btn-primary search-btn">Search</button>
+                        </form>
+                    </div>
+                </div>
+                <!-- /SEARCH BAR -->
+                <!-- ACCOUNT -->
+                <div class="col-md-3">
+                    <div class="header-ctn d-flex justify-content-end">
+                        {% if user.is_authenticated %}
+                            <!-- Wishlist -->
+                            <div class="me-3">
+                                <a href="{% url 'favorite_list' %}">
+                                    <i class="fa fa-heart-o"></i>
+                                    <span>Yêu thích</span>
+                                    <div class="qty">2</div>
+                                </a>
+                            </div>
+                            <!-- /Wishlist -->
+
+                            <!-- Cart -->
+                            <div class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                                    <i class="fa fa-shopping-cart"></i>
+                                    <span>Giỏ hàng</span>
+                                    <div class="qty">3</div>
+                                </a>
+                                <div class="cart-dropdown">
+                                    <div class="cart-list">
+                                        <div class="product-widget">
+                                            <div class="product-img">
+                                                <img src="{% static 'images/product01.png' %}" alt="">
+                                            </div>
+                                            <div class="product-body">
+                                                <h3 class="product-name"><a href="#">product name goes here</a></h3>
+                                                <h4 class="product-price"><span class="qty">1x</span>$980.00</h4>
+                                            </div>
+                                            <button class="delete"><i class="fa fa-close"></i></button>
+                                        </div>
+
+                                        <div class="product-widget">
+                                            <div class="product-img">
+                                                <img src="{% static 'images/product02.png' %}" alt="">
+                                            </div>
+                                            <div class="product-body">
+                                                <h3 class="product-name"><a href="#">product name goes here</a></h3>
+                                                <h4 class="product-price"><span class="qty">3x</span>$980.00</h4>
+                                            </div>
+                                            <button class="delete"><i class="fa fa-close"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="cart-summary">
+                                        <small>3 Item(s) selected</small>
+                                        <h5>SUBTOTAL: $2940.00</h5>
+                                    </div>
+                                    <div class="cart-btns">
+                                        <a href="{% url 'orders:cart' %}">Giỏ hàng</a>
+                                        <a href="{% url 'orders:checkout' %}">Thanh toán  <i class="fa fa-arrow-circle-right"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /Cart -->
+                        {% else %}
+                            <!-- Wishlist -->
+                            <div class="me-3">
+                                <a href="{% url 'login' %}">
+                                    <i class="fa fa-heart-o"></i>
+                                    <span>Yêu thích</span>
+                                    <div class="qty">0</div>
+                                </a>
+                            </div>
+                            <!-- /Wishlist -->
+
+                            <!-- Cart -->
+                            <div class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                                    <i class="fa fa-shopping-cart"></i>
+                                    <span>Giỏ hàng</span>
+                                    <div class="qty">3</div>
+                                </a>
+                                <div class="cart-dropdown">
+                                    <div class="cart-list">
+                                        <div class="product-widget">
+                                            <div class="product-img">
+                                                <img src="{% static 'images/product01.png' %}" alt="">
+                                            </div>
+                                            <div class="product-body">
+                                                <h3 class="product-name"><a href="#">product name goes here</a></h3>
+                                                <h4 class="product-price"><span class="qty">1x</span>$980.00</h4>
+                                            </div>
+                                            <button class="delete"><i class="fa fa-close"></i></button>
+                                        </div>
+
+                                        <div class="product-widget">
+                                            <div class="product-img">
+                                                <img src="{% static 'images/product02.png' %}" alt="">
+                                            </div>
+                                            <div class="product-body">
+                                                <h3 class="product-name"><a href="#">product name goes here</a></h3>
+                                                <h4 class="product-price"><span class="qty">3x</span>$980.00</h4>
+                                            </div>
+                                            <button class="delete"><i class="fa fa-close"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="cart-summary">
+                                        <small>3 Item(s) selected</small>
+                                        <h5>SUBTOTAL: $2940.00</h5>
+                                    </div>
+                                    <div class="cart-btns">
+                                        <a href="#">Giỏ hàng</a>
+                                        <a href="#">Thanh toán  <i class="fa fa-arrow-circle-right"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /Cart -->
+                        {% endif %}
+
+                        <!-- Menu Toogle -->
+                        <div class="menu-toggle">
+                            <a href="#">
+                                <i class="fa fa-bars"></i>
+                                <span>Menu</span>
+                            </a>
+                        </div>
+                        <!-- /Menu Toogle -->
+
+                    </div>
+                </div>
+                <!-- /ACCOUNT -->
+            </div>
+        </div>
+    </div>
+    <!-- /MAIN HEADER -->
+</header>

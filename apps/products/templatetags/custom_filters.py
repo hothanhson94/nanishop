@@ -12,3 +12,12 @@ def currency(value):
         return locale.format_string("%d", value, grouping=True)
     except (ValueError, TypeError):
         return value
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)
+
+@register.filter
+def add(value, arg):
+    """Adds the arg to the value."""
+    return value + arg

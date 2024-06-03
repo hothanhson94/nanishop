@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Danh sách yêu thích</h2>
+<ul>
+    {% for product in favorites %}
+        <li>
+            <a href="{% url 'product_detail' product.id %}">{{ product.name }}</a>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

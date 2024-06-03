@@ -1,23 +1,146 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load custom_filters %}
-{% block title %}{{category.name}} | {{category.description}}{% endblock %}
+
+{% block title %}{{ category.name }} | {{ category.description }}{% endblock %}
+
 {% block category_detail %}
-<!-- SECTION -->
+{% include 'slide.html' %}
 <div class="section">
     <div class="container">
         <div class="row">
-            <!-- Brands Content -->
             <div class="brands__content">
-                <div class="list-brand col-2">
+                <div class="list-brand col-1">
                     {% for brand in brands %}
-                    <a href="#" class="brand-btn"><img src="{{ brand.image.url }}" alt="{{ brand.name }}"></a>
+                        <a href="#" class="brand-btn" data-brand="{{ brand.id }}"><img class="brand-icon" src="{{ brand.image.url }}" alt="{{ brand.name }}"></a>
+                    {% endfor %}
+                </div>
+                <div class="list-feature mt-3">
+                    <p class="col-12">Chọn {{ category.name }} theo nhu cầu:</p>
+                    {% for feature in features %}
+                        <button type="button" class="feature-btn" data-feature="{{ feature.id }}">{{ feature.name }}</button>
                     {% endfor %}
                 </div>
             </div>
-            <!-- /Brands Filter -->
+        </div>
+        <div class="row align-items-center">
+            <div class="store-filter col-3 clearfix">
+                <div class="store-sort">
+                    <form id="sort-form" method="get" action="#">
+                        <label>
+                            Xếp theo:
+                            <select class="input-select" name="sort_by">
+                                <option value="price_asc">Giá tăng dần</option>
+                                <option value="price_desc">Giá giảm dần</option>
+                            </select>
+                        </label>
+                    </form>
+                </div>
+            </div>
+            <div class="checkbox-filter col-3 d-flex align-items-center">
+                <div class="input-checkbox form-check">
+                    <input type="checkbox" id="new" name="new" class="form-check-input">
+                    <label class="form-check-label" for="new">
+                        <span></span>
+                        Mới
+                    </label>
+                </div>
+            </div>
+            <div class="checkbox-filter col-3 d-flex align-items-center">
+                <div class="input-checkbox form-check">
+                    <input type="checkbox" id="promotion" name="promotion" class="form-check-input">
+                    <label class="form-check-label" for="promotion">
+                        <span></span>
+                        Giảm giá
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div id="product-list-container">
+                {% include 'products/category_detail_content.html' %}
+            </div>
+            <div id="view-more-container" class="view-more" style="display: {% if remaining_products_count == 0 %}none{% else %}block{% endif %};">
+                <a href="#" id="view-more-link">
+                    Xem thêm
+                    <span id="remaining-count">{{ remaining_products_count }}</span>
+                    {{ category.name }}
+                </a>
+            </div>
         </div>
     </div>
 </div>
-<!-- /SECTION -->
 {% endblock category_detail %}
+
+{% block extra_scripts %}
+<script>
+    $(document).ready(function(){
+        function updateProductList(page=1) {
+            $.ajax({
+                url: window.location.pathname,
+                type: 'get',
+                data: {
+                    brand: $('a.brand-btn.active').data('brand'),
+                    feature: $('button.feature-btn.active').data('feature'),
+                    sort_by: $('#sort-form select[name="sort_by"]').val(),
+                    new: $('#new').is(':checked'),
+                    promotion: $('#promotion').is(':checked'),
+                    page: page
+                },
+                success: function(response){
+                    if (page > 1) {
+                        $('#product-list-container').append(response.products_html);
+                    } else {
+                        $('#product-list-container').html(response.products_html);
+                    }
+                    updateViewMore(response.remaining_products_count);
+                }
+            });
+        }
+
+        function updateViewMore(remaining) {
+            if (remaining <= 0) {
+                $('#view-more-container').hide();
+            } else {
+                let showCount = Math.min(remaining, 12);
+                $('#remaining-count').text(showCount);
+                $('#view-more-container').show();
+            }
+        }
+
+        $('.brand-btn').on('click', function(e){
+            e.preventDefault();
+            $('.brand-btn').removeClass('active');
+            $(this).addClass('active');
+            updateProductList();
+        });
+
+        $('.feature-btn').on('click', function(e){
+            e.preventDefault();
+            $('.feature-btn').removeClass('active');
+            $(this).addClass('active');
+            updateProductList();
+        });
+
+        $('#sort-form select').on('change', function(){
+            updateProductList();
+        });
+
+        $('#new, #promotion').on('change', function(){
+            updateProductList();
+        });
+
+        $(document).on('click', '.page-link', function(e){
+            e.preventDefault();
+            let page = parseInt($(this).text());
+            updateProductList(page);
+        });
+
+        $('#view-more-link').on('click', function(e){
+            e.preventDefault();
+            let currentPage = parseInt($('.pagination .active span').text()) || 1;
+            updateProductList(currentPage + 1);
+        });
+    });
+</script>
+{% endblock %}
