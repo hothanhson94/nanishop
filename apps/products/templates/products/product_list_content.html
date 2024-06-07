@@ -10,7 +10,7 @@
 <div class="col-md-4 col-xs-6">
     <div class="product">
         <div class="product-img">
-            <img src="{{ product.image.url }}" alt="{{ product.name }}" height="275">
+            <img src="{{ product.ImageURL }}" alt="{{ product.name }}" height="275">
             <div class="product-label">
             {% if product.promotion %}
             <span class="sale">-{{ product.promotion_discount }}%</span>
@@ -24,7 +24,7 @@
             <p class="product-category">{{ product.category.name }}</p>
             <h3 class="product-name"><a href="{% url 'products:product_detail' product.slug %}">{{ product.name|slice:":40" }}{% if product.name|length > 40 %}...{% endif %}</a></h3>
             {% if product.promotion %}
-            <h4 class="product-price">{{ product.price_after_discount|currency }}₫ <del class="product-old-price">{{ product.price|currency }}₫</del></h4>
+            <h4 class="product-price">{{ product.price_after_discount|currency }} ₫ <del class="product-old-price">{{ product.price|currency }}₫</del></h4>
             {% else %}
             <h4 class="product-price">{{ product.price|currency }}₫</h4>
             {% endif %}
@@ -33,14 +33,24 @@
                 <i class="fa fa-star{% if product.rating < i %}-o{% endif %}"></i>
                 {% endfor %}
             </div>
-            <div class="product-btns">
-                <button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
-                <button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
-                <button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
+            <div class="product-btns row justify-content-center">
+                {% if user.is_authenticated and product in user.customer.favorite_products.all %}
+                <form method="post" action="{% url 'add_to_favorites' product.id %}" class="col-4 justify-content-center d-flex">
+                    {% csrf_token %}
+                    <button type="submit" class="add-to-wishlist"><i class="fa fa-trash" aria-hidden="true"></i><span class="tooltipp">Xóa</span></button>
+                </form>
+                {% else %}
+                <form method="post" action="{% url 'add_to_favorites' product.id %}" class="col-4 justify-content-center d-flex">
+                    {% csrf_token %}
+                    <button type="submit" class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">Yêu thích</span></button>
+                </form>
+                {% endif %}
+                <button class="add-to-compare col-4"><i class="fa fa-exchange"></i><span class="tooltipp">So sánh</span></button>
+                <button class="quick-view col-4"><i class="fa fa-eye"></i><span class="tooltipp">Xem nhanh</span></button>
             </div>
         </div>
         <div class="add-to-cart">
-            <button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
+            <button class="add-to-cart-btn update-cart" data-product={{product.id}} data-action="add"><i class="fa fa-shopping-cart"></i> Thêm vào giỏ hàng</button>
         </div>
     </div>
 </div>

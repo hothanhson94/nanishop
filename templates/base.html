@@ -1,4 +1,5 @@
 {% load static %}
+{% load custom_filters %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -31,6 +32,26 @@
 		<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 		<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 	<![endif]-->
+	<script type="text/javascript">
+		var user = '{{ request.user|escapejs }}';
+
+		function getCookie(name) {
+			let cookieValue = null;
+			if (document.cookie && document.cookie !== '') {
+				const cookies = document.cookie.split(';');
+				for (let i = 0; i < cookies.length; i++) {
+					const cookie = cookies[i].trim();
+					// Does this cookie string begin with the name we want?
+					if (cookie.substring(0, name.length + 1) === (name + '=')) {
+						cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+						break;
+					}
+				}
+			}
+			return cookieValue;
+		}
+		const csrftoken = getCookie('csrftoken');
+	</script>
 	{% block extra_head %}{% endblock %}
 
 </head>
@@ -41,6 +62,18 @@
 	<!-- NAVIGATION -->
 	{% include 'nav.html' %}
 	<!-- /NAVIGATION -->
+
+	{% if messages %}
+		<div class="container">
+			<div class="row">
+				<div class="col-12 d-flex justify-content-center">
+					{% for message in messages %}
+						<div class="alert alert-{{ message.tags }}">{{ message }}</div>
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+	{% endif %}
 	
 	{% block index %}{% endblock index %}
 	{% block product_list %}{% endblock product_list %}
@@ -48,37 +81,11 @@
 	{% block category_detail %}{% endblock category_detail %}
 	{% block cart %}{% endblock cart %}
 	{% block checkout %}{% endblock checkout %}
-	<!-- NEWSLETTER -->
-	<div id="newsletter" class="section bg-light py-5">
-		<div class="container">
-			<div class="row">
-				<div class="col-md-12 text-center">
-					<div class="newsletter">
-						<p>Sign Up for the <strong>NEWSLETTER</strong></p>
-						<form class="d-flex justify-content-center">
-							<input class="form-control" type="email" placeholder="Enter Your Email">
-							<button class="btn btn-primary newsletter-btn"><i class="fa fa-envelope"></i> Subscribe</button>
-						</form>
-						<ul class="newsletter-follow d-flex justify-content-center list-unstyled mt-3">
-							<li class="me-2">
-								<a href="#"><i class="fa fa-facebook"></i></a>
-							</li>
-							<li class="me-2">
-								<a href="#"><i class="fa fa-twitter"></i></a>
-							</li>
-							<li class="me-2">
-								<a href="#"><i class="fa fa-instagram"></i></a>
-							</li>
-							<li>
-								<a href="#"><i class="fa fa-pinterest"></i></a>
-							</li>
-						</ul>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- /NEWSLETTER -->
+	{% block register %}{% endblock register %}
+	{% block login %}{% endblock login %}
+	{% block profile %}{% endblock profile %}
+	{% block favorite_list %}{% endblock favorite_list %}
+	{% block search_content %}{% endblock search_content %}	
 
 	<!-- Nút lên đầu trang -->
     <div id="scrollToTopBtn" title="Go to top"><i class="fa fa-arrow-circle-up" aria-hidden="true"></i></div>

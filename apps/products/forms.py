@@ -1,5 +1,5 @@
 from django import forms
-from .models import Category, Brand
+from .models import Category, Brand, Review
 
 class ProductFilterForm(forms.Form):
     category = forms.ModelMultipleChoiceField(queryset=Category.objects.all(), required=False)
@@ -8,3 +8,8 @@ class ProductFilterForm(forms.Form):
     max_price = forms.DecimalField(max_digits=10, decimal_places=2, required=False)
     sort_by = forms.ChoiceField(choices=[('price_asc', 'Giá tăng dần'), ('price_desc', 'Giá giảm dần')], required=False)
     items_per_page = forms.ChoiceField(choices=[(10, '10'), (20, '20')], required=False, initial=10)
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['review_text', 'rating']

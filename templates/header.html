@@ -1,5 +1,5 @@
-
 {% load static %}
+{% load custom_filters %}
 <header>
     <!-- TOP HEADER -->
     <div id="top-header" class="bg-dark text-white py-2">
@@ -15,10 +15,7 @@
                 <div class="col-md-2 text-end">
                     <ul class="header-links d-flex list-unstyled">
                         {% if user.is_authenticated %}
-                            <li><a href="#"><i class="fa fa-user-o"></i>Xin chào, {{ profile.user }}</a></li>
-                            {% comment %} <li><a href="{% url 'profile' %}">Hồ sơ</a></li>
-                            <li><a href="{% url 'favorite_list' %}">Yêu thích</a></li>
-                            <li><a href="{% url 'cart' %}">Giỏ hàng</a></li> {% endcomment %}
+                            <li><a href="{% url 'profile' %}"><i class="fa fa-user-o"></i>Xin chào, {{ user }}</a></li>
                             <li><a href="{% url 'logout' %}">Đăng xuất</a></li>
                         {% else %}
                             <li><a href="{% url 'login' %}">Đăng nhập</a></li>
@@ -35,7 +32,7 @@
         <div class="container">
             <div class="row align-items-center">
                 <!-- LOGO -->
-                <div class="col-md-3">
+                <div class="col-lg-3 col-12 mb-3">
                     <div class="header-logo">
                         <a href="{% url 'index' %}" class="logo">
                             <img src="{% static 'images/logo.png' %}" alt="">
@@ -44,25 +41,27 @@
                 </div>
                 <!-- /LOGO -->
                 <!-- SEARCH BAR -->
-                <div class="col-md-6">
+                <div class="col-lg-6 col-12 mb-3">
                     <div class="header-search">
-                        <form class="d-flex">
-                            <input class="form-control ms-2 input" placeholder="Search here">
-                            <button class="btn btn-primary search-btn">Search</button>
+                        <form class="d-flex" method="get" action="{% url 'products:product_search' %}">
+                            <input class="form-control ms-2 input" name="q" placeholder="Bạn tìm gì?..." required>
+                            <button class="btn btn-primary search-btn" type="submit">Tìm kiếm</button>
                         </form>
                     </div>
                 </div>
                 <!-- /SEARCH BAR -->
                 <!-- ACCOUNT -->
-                <div class="col-md-3">
+                <div class="col-lg-3 col-12 mb-3 d-flex justify-content-md-center">
                     <div class="header-ctn d-flex justify-content-end">
                         {% if user.is_authenticated %}
                             <!-- Wishlist -->
                             <div class="me-3">
                                 <a href="{% url 'favorite_list' %}">
                                     <i class="fa fa-heart-o"></i>
+                                    {% if user.is_authenticated %}
                                     <span>Yêu thích</span>
-                                    <div class="qty">2</div>
+                                    <div class="qty">{{ user.customer.favorite_products.count }}</div>
+                                    {% endif %}
                                 </a>
                             </div>
                             <!-- /Wishlist -->
@@ -72,35 +71,26 @@
                                 <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
                                     <i class="fa fa-shopping-cart"></i>
                                     <span>Giỏ hàng</span>
-                                    <div class="qty">3</div>
+                                    <div class="qty cart-total-items">{{ order.get_cart_items }}</div>
                                 </a>
                                 <div class="cart-dropdown">
                                     <div class="cart-list">
-                                        <div class="product-widget">
+                                        {% for item in items %}
+                                        <div class="product-widget" data-product="{{ item.product.id }}">
                                             <div class="product-img">
-                                                <img src="{% static 'images/product01.png' %}" alt="">
+                                                <img src="{{item.product.ImageURL}}" alt="{{ item.product.name }}">
                                             </div>
                                             <div class="product-body">
-                                                <h3 class="product-name"><a href="#">product name goes here</a></h3>
-                                                <h4 class="product-price"><span class="qty">1x</span>$980.00</h4>
+                                                <h3 class="product-name"><a href="{% url 'products:product_detail' item.product.slug %}">{{ item.product.name|slice:":20" }}{% if product.name|length > 20 %}...{% endif %}</a></h3>
+                                                <h4 class="product-price text-danger"><span class="qty text-dark item-quantity">{{ item.quantity }}x</span>{{ item.product.price_after_discount|currency }} ₫</h4>
                                             </div>
                                             <button class="delete"><i class="fa fa-close"></i></button>
                                         </div>
-
-                                        <div class="product-widget">
-                                            <div class="product-img">
-                                                <img src="{% static 'images/product02.png' %}" alt="">
-                                            </div>
-                                            <div class="product-body">
-                                                <h3 class="product-name"><a href="#">product name goes here</a></h3>
-                                                <h4 class="product-price"><span class="qty">3x</span>$980.00</h4>
-                                            </div>
-                                            <button class="delete"><i class="fa fa-close"></i></button>
-                                        </div>
+                                        {% endfor %}
                                     </div>
                                     <div class="cart-summary">
-                                        <small>3 Item(s) selected</small>
-                                        <h5>SUBTOTAL: $2940.00</h5>
+                                        <small>{{order.get_cart_items}} Sản phẩm</small>
+                                        <h5>Tổng tiền: <span class="text-danger total-money">{{order.get_total_money|currency}} ₫</span></h5>
                                     </div>
                                     <div class="cart-btns">
                                         <a href="{% url 'orders:cart' %}">Giỏ hàng</a>
@@ -112,7 +102,7 @@
                         {% else %}
                             <!-- Wishlist -->
                             <div class="me-3">
-                                <a href="{% url 'login' %}">
+                                <a href="#" class="show-login-modal">
                                     <i class="fa fa-heart-o"></i>
                                     <span>Yêu thích</span>
                                     <div class="qty">0</div>
@@ -122,44 +112,11 @@
 
                             <!-- Cart -->
                             <div class="dropdown">
-                                <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                                <a href="#" class="show-login-modal">
                                     <i class="fa fa-shopping-cart"></i>
                                     <span>Giỏ hàng</span>
-                                    <div class="qty">3</div>
+                                    <div class="qty">0</div>
                                 </a>
-                                <div class="cart-dropdown">
-                                    <div class="cart-list">
-                                        <div class="product-widget">
-                                            <div class="product-img">
-                                                <img src="{% static 'images/product01.png' %}" alt="">
-                                            </div>
-                                            <div class="product-body">
-                                                <h3 class="product-name"><a href="#">product name goes here</a></h3>
-                                                <h4 class="product-price"><span class="qty">1x</span>$980.00</h4>
-                                            </div>
-                                            <button class="delete"><i class="fa fa-close"></i></button>
-                                        </div>
-
-                                        <div class="product-widget">
-                                            <div class="product-img">
-                                                <img src="{% static 'images/product02.png' %}" alt="">
-                                            </div>
-                                            <div class="product-body">
-                                                <h3 class="product-name"><a href="#">product name goes here</a></h3>
-                                                <h4 class="product-price"><span class="qty">3x</span>$980.00</h4>
-                                            </div>
-                                            <button class="delete"><i class="fa fa-close"></i></button>
-                                        </div>
-                                    </div>
-                                    <div class="cart-summary">
-                                        <small>3 Item(s) selected</small>
-                                        <h5>SUBTOTAL: $2940.00</h5>
-                                    </div>
-                                    <div class="cart-btns">
-                                        <a href="#">Giỏ hàng</a>
-                                        <a href="#">Thanh toán  <i class="fa fa-arrow-circle-right"></i></a>
-                                    </div>
-                                </div>
                             </div>
                             <!-- /Cart -->
                         {% endif %}
@@ -181,3 +138,22 @@
     </div>
     <!-- /MAIN HEADER -->
 </header>
+
+<!-- Modal -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="loginModalLabel">Thông báo</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Bạn cần phải đăng nhập để sử dụng tính năng này.
+      </div>
+      <div class="modal-footer">
+        <a href="{% url 'login' %}" class="btn btn-primary">Đăng nhập</a>
+        <a href="{% url 'register' %}" class="btn btn-secondary">Đăng ký</a>
+      </div>
+    </div>
+  </div>
+</div>

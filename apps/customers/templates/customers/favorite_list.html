@@ -1,11 +1,53 @@
 {% extends "base.html" %}
-{% block content %}
-<h2>Danh sách yêu thích</h2>
-<ul>
-    {% for product in favorites %}
-        <li>
-            <a href="{% url 'product_detail' product.id %}">{{ product.name }}</a>
-        </li>
-    {% endfor %}
-</ul>
-{% endblock %}
+{% load static %}
+{% load custom_filters %}
+{% block title %}{{ user }} - Yêu thích{% endblock %}
+{% block favorite_list %}
+<div class="container">
+    <h3 class="col-12">Danh sách yêu thích</h3>
+    <div class="card-body row">
+        {% for product in favorites %}
+        <div class="col-md-4 col-xs-6">
+            <div class="product">
+                <div class="product-img">
+                    <img src="{{ product.ImageURL }}" alt="{{ product.name }}" height="275">
+                    <div class="product-label">
+                    {% if product.promotion %}
+                    <span class="sale">-{{ product.promotion_discount }}%</span>
+                    {% endif %}
+                    {% if product.new %}
+                    <span class="new">NEW</span>
+                    {% endif %}
+                    </div>
+                </div>
+                <div class="product-body">
+                    <p class="product-category">{{ product.category.name }}</p>
+                    <h3 class="product-name"><a href="{% url 'products:product_detail' product.slug %}">{{ product.name|slice:":40" }}{% if product.name|length > 40 %}...{% endif %}</a></h3>
+                    {% if product.promotion %}
+                    <h4 class="product-price">{{ product.price_after_discount|currency }}₫ <del class="product-old-price">{{ product.price|currency }}₫</del></h4>
+                    {% else %}
+                    <h4 class="product-price">{{ product.price|currency }}₫</h4>
+                    {% endif %}
+                    <div class="product-rating">
+                        {% for i in "12345" %}
+                        <i class="fa fa-star{% if product.rating < i %}-o{% endif %}"></i>
+                        {% endfor %}
+                    </div>
+                    <div class="product-btns row justify-content-center">
+                        <form method="post" action="{% url 'add_to_favorites' product.id %}" class="col-4 justify-content-center d-flex">
+                            {% csrf_token %}
+                            <button class="add-to-wishlist"><i class="fa fa-trash" aria-hidden="true"></i><a href="{% url 'add_to_favorites' product.id %}" class="btn btn-sm btn-outline-danger fade"></a><span class="tooltipp">Xoá</span></button>
+                        </form>
+                        <button class="add-to-compare col-4"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
+                        <button class="quick-view col-4"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
+                    </div>
+                </div>
+                <div class="add-to-cart">
+                    <button class="add-to-cart-btn update-cart" data-product={{product.id}} data-action="add"><i class="fa fa-shopping-cart"></i> add to cart</button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock favorite_list %}

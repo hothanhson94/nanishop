@@ -4,54 +4,6 @@
 {% block title %}NaniShop - giá rẻ bất ngờ{% endblock %}
 {% block index %}
 	{% include 'slide.html' %}
-	<!-- SECTION -->
-	<div class="section">
-		<div class="container">
-			<div class="row">
-				<!-- shop -->
-				<div class="col-md-4 col-xs-6">
-					<div class="shop">
-						<div class="shop-img">
-							<img src="{% static 'images/shop01.png' %}" alt="">
-						</div>
-						<div class="shop-body">
-							<h3>Laptop<br>Collection</h3>
-							<a href="#" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
-						</div>
-					</div>
-				</div>
-				<!-- /shop -->
-				<!-- shop -->
-				<div class="col-md-4 col-xs-6">
-					<div class="shop">
-						<div class="shop-img">
-							<img src="{% static 'images/shop03.png' %}" alt="">
-						</div>
-						<div class="shop-body">
-							<h3>Accessories<br>Collection</h3>
-							<a href="#" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
-						</div>
-					</div>
-				</div>
-				<!-- /shop -->
-				<!-- shop -->
-				<div class="col-md-4 col-xs-6">
-					<div class="shop">
-						<div class="shop-img">
-							<img src="{% static 'images/shop02.png' %}" alt="">
-						</div>
-						<div class="shop-body">
-							<h3>Cameras<br>Collection</h3>
-							<a href="#" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
-						</div>
-					</div>
-				</div>
-				<!-- /shop -->
-			</div>
-		</div>
-	</div>
-	<!-- /SECTION -->
-
 	{% for category in categories %}
 	<!-- SECTION -->
 	<div class="section">
@@ -84,7 +36,7 @@
 									<div class="col-md-3 col-xs-6">
 										<div class="product">
 											<div class="product-img">
-												<img src="{{ product.image.url }}" alt="{{ product.name }}">
+												<img src="{{ product.ImageURL }}" alt="{{ product.name }}">
 												<div class="product-label">
 													{% if product.promotion %}
 														<span class="sale">-{{ product.promotion_discount }}%</span>
@@ -107,14 +59,30 @@
 														<i class="fa fa-star{% if product.rating < i %}-o{% endif %}"></i>
 													{% endfor %}
 												</div>
-												<div class="product-btns">
-													<button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
-													<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
-													<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
+												<div class="product-btns row justify-content-center">
+													{% if user.is_authenticated and product in user.customer.favorite_products.all %}
+														<form method="post" action="{% url 'add_to_favorites' product.id %}" class="col-4 justify-content-center d-flex">
+															{% csrf_token %}
+															<button type="submit" class="add-to-wishlist"><i class="fa fa-trash" aria-hidden="true"></i><span class="tooltipp">Xóa</span></button>
+														</form>
+													{% elif user.is_authenticated %}
+														<form method="post" action="{% url 'add_to_favorites' product.id %}" class="col-4 justify-content-center d-flex">
+															{% csrf_token %}
+															<button type="submit" class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
+														</form>
+													{% else %}
+														<button type="button" class="add-to-wishlist" data-bs-toggle="modal" data-bs-target="#loginModal"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
+													{% endif %}
+													<button class="add-to-compare col-4"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
+													<button class="quick-view col-4"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
 												</div>
 											</div>
 											<div class="add-to-cart">
-												<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
+												{% if user.is_authenticated %}
+                                                	<button class="add-to-cart-btn update-cart" data-product={{product.id}} data-action = "add"><i class="fa fa-shopping-cart"></i> add to cart</button>
+												{% else %}
+													<button class="add-to-cart-btn update-cart" data-bs-toggle="modal" data-bs-target="#loginModal"><i class="fa fa-shopping-cart"></i> add to cart</button>
+												{% endif %}
 											</div>
 										</div>
 									</div>
@@ -213,7 +181,7 @@
                                     <div class="col-md-3 col-xs-6">
                                         <div class="product">
                                             <div class="product-img">
-                                                <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                                                <img src="{{ product.ImageURL }}" alt="{{ product.name }}">
                                                 <div class="product-label">
                                                     {% if product.promotion %}
                                                         <span class="sale">-{{ product.promotion_discount }}%</span>
@@ -236,14 +204,30 @@
                                                         <i class="fa fa-star{% if product.rating < i %}-o{% endif %}"></i>
                                                     {% endfor %}
                                                 </div>
-                                                <div class="product-btns">
-                                                    <button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
-                                                    <button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
-                                                    <button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
-                                                </div>
+                                                <div class="product-btns row justify-content-center">
+													{% if user.is_authenticated and product in user.customer.favorite_products.all %}
+														<form method="post" action="{% url 'add_to_favorites' product.id %}" class="col-4 justify-content-center d-flex">
+															{% csrf_token %}
+															<button type="submit" class="add-to-wishlist"><i class="fa fa-trash" aria-hidden="true"></i><span class="tooltipp">Xóa</span></button>
+														</form>
+													{% elif user.is_authenticated %}
+														<form method="post" action="{% url 'add_to_favorites' product.id %}" class="col-4 justify-content-center d-flex">
+															{% csrf_token %}
+															<button type="submit" class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
+														</form>
+													{% else %}
+														<button type="button" class="add-to-wishlist" data-bs-toggle="modal" data-bs-target="#loginModal"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
+													{% endif %}
+													<button class="add-to-compare col-4"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
+													<button class="quick-view col-4"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
+												</div>
                                             </div>
                                             <div class="add-to-cart">
-                                                <button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
+												{% if user.is_authenticated %}
+                                                	<button class="add-to-cart-btn update-cart" data-product={{product.id}} data-action = "add"><i class="fa fa-shopping-cart"></i> add to cart</button>
+												{% else %}
+													<button class="add-to-cart-btn update-cart" data-bs-toggle="modal" data-bs-target="#loginModal"><i class="fa fa-shopping-cart"></i> add to cart</button>
+												{% endif %}
                                             </div>
                                         </div>
                                     </div>
@@ -263,6 +247,9 @@
         </div>
     </div>
 	<!-- /SECTION -->
+	<!-- NEWSLETTER -->
+	{% include 'newsletter.html' %}
+	<!-- /NEWSLETTER -->
 {% endblock index %}
 {% block extra_scripts %}
 <script type="text/javascript">

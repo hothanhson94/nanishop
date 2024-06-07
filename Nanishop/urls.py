@@ -26,6 +26,7 @@ urlpatterns = [
     path('products/', include('apps.products.urls', namespace='products')),
     path('orders/', include('apps.orders.urls')),
     path('customers/', include('apps.customers.urls')),
+    path('ckeditor5/', include('django_ckeditor_5.urls')),
 ]
 
 if settings.DEBUG:

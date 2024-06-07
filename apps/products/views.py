@@ -1,19 +1,38 @@
-from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse, HttpResponse
 from django.template.loader import render_to_string
-from .models import Category, Product, Brand, Feature, ProductFeature
+from .models import Category, Product, Brand, Feature, ProductFeature, Review
+from apps.orders.models import Order, OrderItem, ShippingAddress
+from apps.customers.models import Customer
 from django.core.paginator import Paginator,EmptyPage, PageNotAnInteger
-from .forms import ProductFilterForm
+from .forms import ProductFilterForm, ReviewForm
+from django.db.models import Q
+from django.core.paginator import Paginator
 import random
+import json
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib import messages
 
 def home(request):
     categories = Category.objects.all()
     products_by_category = {category.slug: Product.objects.filter(category=category, new=True) for category in categories}
     products_by_top_selling = {category.slug: Product.objects.filter(category=category, top_selling=True) for category in categories}
+
+    if request.user.is_authenticated:
+        customer = request.user.customer
+        order, created = Order.objects.get_or_create(customer=customer, is_ordered=False)
+        items = order.orderitem_set.all()
+    else:
+        items = []
+        order = {'order.get_total_money': 0, 'order.get_cart_items': 0}
+
     context={
         'products_by_category': products_by_category,
         'products_by_top_selling': products_by_top_selling,
         'categories': categories,
+        'items': items,
+        'order': order,
     }
     return render(request, 'index.html', context)
 
@@ -23,6 +42,13 @@ def product_list(request, category_slug=None):
     products = Product.objects.filter(available=True)
     brands = Brand.objects.all()
     form = ProductFilterForm(request.GET)
+    if request.user.is_authenticated:
+        customer = request.user.customer
+        order, created = Order.objects.get_or_create(customer=customer, is_ordered=False)
+        items = order.orderitem_set.all()
+    else:
+        items = []
+        order = {'order.get_total_money': 0, 'order.get_cart_items': 0}
 
     top_selling_products = list(products.filter(top_selling=True))
     if len(top_selling_products) > 5:
@@ -106,12 +132,68 @@ def product_list(request, category_slug=None):
         'no_products_found': no_products_found,
         'top_selling_products': top_selling_products,
         'request': request,
+        'items': items,
+        'order': order,
     }
     return render(request, 'products/product_list.html', context)
 
+@login_required
+def add_review(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.product = product
+            review.customer = request.user.customer
+            review.save()
+            messages.success(request, 'Đánh giá của bạn đã được thêm!')
+            return redirect('products:product_detail', product_slug=product.slug)
+    else:
+        form = ReviewForm()
+    context = {
+        'form': form,
+        'product': product
+    }
+    return render(request, 'products/add_review.html', context)
+
 def product_detail(request, product_slug):
     product = get_object_or_404(Product, slug=product_slug)
-    return render(request, 'products/product_detail.html', {'product': product})
+    reviews = product.reviews.all()
+    images = product.images.all()
+    
+    if request.user.is_authenticated:
+        customer = request.user.customer
+        order, created = Order.objects.get_or_create(customer=customer, is_ordered=False)
+        items = order.orderitem_set.all()
+    else:
+        items = []
+        order = {'order.get_total_money': 0, 'order.get_cart_items': 0}
+
+    # Lấy danh sách sản phẩm tương tự
+    related_products = Product.objects.filter(
+        category=product.category,
+        price__gte=product.price - 5000000,
+        price__lte=product.price + 5000000,
+        available=True
+    ).exclude(id=product.id)
+
+    product_features = ProductFeature.objects.filter(product=product)
+    feature_ids = [pf.feature.id for pf in product_features]
+
+    if feature_ids:
+        related_products = related_products.filter(product_features__feature__in=feature_ids).distinct()
+
+    context = {
+        'product': product,
+        'reviews': reviews,
+        'order': order,
+        'items': items,
+        'images': images,
+        'related_products': related_products,  # Thêm danh sách sản phẩm tương tự vào context
+    }
+
+    return render(request, 'products/product_detail.html', context)
 
 def category_detail(request, category_slug):
     category = get_object_or_404(Category, slug=category_slug)
@@ -125,6 +207,14 @@ def category_detail(request, category_slug):
     sort_by = request.GET.get('sort_by')
     new_only = request.GET.get('new') == 'true'
     promotion_only = request.GET.get('promotion') == 'true'
+
+    if request.user.is_authenticated:
+        customer = request.user.customer
+        order, created = Order.objects.get_or_create(customer=customer, is_ordered=False)
+        items = order.orderitem_set.all()
+    else:
+        items = []
+        order = {'order.get_total_money': 0, 'order.get_cart_items': 0}
 
     # Lọc sản phẩm theo thương hiệu nếu có
     if brand_id:
@@ -173,9 +263,33 @@ def category_detail(request, category_slug):
         'products': products,
         'page_obj': page_obj,
         'brands': brands,
+        'items': items,
+        'order': order,
         'categories': categories,
         'features': features,
         'remaining_products_count': remaining_products_count
     }
     return render(request, 'products/category_detail.html', context)
 
+def product_search(request):
+    query = request.GET.get('q')
+    if query:
+        products = Product.objects.filter(
+            Q(name__icontains=query) |
+            Q(category__name__icontains=query) |
+            Q(brand__name__icontains=query),
+            available=True
+        )
+    else:
+        products = Product.objects.none()
+    
+    paginator = Paginator(products, 12)  # 12 sản phẩm mỗi trang
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'products': products,
+        'query': query,
+        'page_obj': page_obj
+    }
+    return render(request, 'products/search_results.html', context)

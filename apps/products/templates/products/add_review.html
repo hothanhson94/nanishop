@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Thêm đánh giá{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h2>Thêm đánh giá cho {{ product.name }}</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="review_text" class="form-label">Đánh giá của bạn</label>
+                    <textarea class="form-control" id="review_text" name="review_text" rows="5" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Đánh giá</label>
+                    <div class="input-rating">
+                        <div class="stars">
+                            <input id="star5" name="rating" value="5" type="radio"><label for="star5"></label>
+                            <input id="star4" name="rating" value="4" type="radio"><label for="star4"></label>
+                            <input id="star3" name="rating" value="3" type="radio"><label for="star3"></label>
+                            <input id="star2" name="rating" value="2" type="radio"><label for="star2"></label>
+                            <input id="star1" name="rating" value="1" type="radio"><label for="star1"></label>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

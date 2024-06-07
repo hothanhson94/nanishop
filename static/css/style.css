@@ -1,6 +1,6 @@
 /*
-Template Name: Electro - HTML Ecommerce Template
-Author: yaminncco
+Template Name: Nanishop
+Author: Nanishop
 
 Colors:
 	Body 		: #333
@@ -475,14 +475,14 @@ textarea.input {
 }
 
 .header-search form .input {
-  width: calc(100% - 100px);
+  width: calc(100% - 120px);
   margin-right: -4px;
   border-radius: 40px 0px 0px 40px;
 }
 
 .header-search form .search-btn {
   height: 40px;
-  width: 100px;
+  width: 120px;
   border: 1px solid #D10024;
   background: #D10024;
   color: #FFF;
@@ -971,6 +971,8 @@ textarea.input {
   background-color: #E4E7ED;
 }
 
+.product .product-body .product-btns>form,
+.product .product-body .product-btns>form>button,
 .product .product-body .product-btns>button {
   position: relative;
   width: 40px;
@@ -982,12 +984,14 @@ textarea.input {
   transition: 0.2s all;
 }
 
+.product .product-body .product-btns>form>button:hover,
 .product .product-body .product-btns>button:hover {
   background-color: #E4E7ED;
   color: #D10024;
   border-radius: 50%;
 }
 
+.product .product-body .product-btns>form>button .tooltipp,
 .product .product-body .product-btns>button .tooltipp {
   position: absolute;
   bottom: 100%;
@@ -1009,7 +1013,7 @@ textarea.input {
   transition: 0.2s all;
 }
 
-.product .product-body .product-btns>button:hover .tooltipp {
+.product .product-body .product-btns>form>button:hover .tooltipp {
   opacity: 1;
   visibility: visible;
   -webkit-transform: translate(-50%, -5px);

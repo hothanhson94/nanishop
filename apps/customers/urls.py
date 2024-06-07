@@ -4,9 +4,12 @@ from . import views
 
 urlpatterns = [
     path('register/', views.register, name='register'),
-    path('login/', auth_views.LoginView.as_view(template_name='customers/login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(template_name='customers/logout.html'), name='logout'),
+    path('login/', views.custom_login, name='login'),
     path('profile/', views.profile, name='profile'),
     path('favorites/', views.favorite_list, name='favorite_list'),
-    path('add_to_favorites/<int:product_id>/', views.add_to_favorites, name='add_to_favorites'),
+    path('edit_profile/', views.edit_profile, name='edit_profile'),
+    path('logout/', views.custom_logout, name='logout'),
+    path('favorites/add/<int:product_id>/', views.add_to_favorites, name='add_to_favorites'),
+    path('newsletter-signup/', views.newsletter_signup, name='newsletter_signup'),
+    path('change_password/', views.change_password, name='change_password'),
 ]

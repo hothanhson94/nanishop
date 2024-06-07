@@ -1,14 +1,87 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Register</title>
-</head>
-<body>
-    <h2>Register</h2>
-    <form method="post">
-        {% csrf_token %}
-        <!-- form fields -->
-        <button type="submit">Register</button>
-    </form>
-</body>
-</html>
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}NaniShop - Đăng ký{% endblock %}
+{% block register %}
+<!-- Container Start -->
+<div class="container">
+    <div class="bg-color row" id="screen-register">
+        <section class="container col-lg-6 my-auto">
+            <div class="row justify-content-md-center" id="register">
+                <form method="post" class="col-sm-12 bg-white p-5 rounded shadow">
+                    {% csrf_token %}
+                    <div class="col-12 text-center">
+                        <h4>
+                            Chào mừng đến với <a href="{% url 'index' %}" class="fw-bold text-danger">NaniShop</a>
+                        </h4>
+                        <p class="fw-bold">
+                            Đăng ký
+                        </p>
+                    </div>
+                    <div class="mb-3 form-floating">
+                        <input type="text" class="form-control" id="id_username" name="username" placeholder="username" required>
+                        <label for="id_username" class="form-label ps-4">Tên đăng nhập</label>
+                        {% if errors.username %}
+                        <div class="text-danger">{{ errors.username }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3 form-floating">
+                        <input type="text" class="form-control" id="id_name" name="name" placeholder="Họ Tên" required>
+                        <label for="id_name" class="form-label ps-4">Họ Tên</label>
+                    </div>
+                    <div class="mb-3 form-floating">
+                        <select class="form-control" id="id_gender" name="gender" required>
+                            <option value="">Chọn Giới tính</option>
+                            <option value="M">Nam</option>
+                            <option value="F">Nữ</option>
+                            <option value="O">Khác</option>
+                        </select>
+                        <label for="id_gender" class="form-label ps-4">Giới tính</label>
+                    </div>
+                    <div class="mb-3 form-floating">
+                        <input type="email" class="form-control" id="id_email" name="email" placeholder="Email" required>
+                        <label for="id_email" class="form-label ps-4">Email</label>
+                        {% if errors.email %}
+                        <div class="text-danger">{{ errors.email }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3 form-floating">
+                        <input type="password" class="form-control" id="id_password1" name="password1" placeholder="Password" required>
+                        <label for="id_password1" class="form-label ps-4">Mật khẩu</label>
+                    </div>
+                    <div class="mb-3 form-floating">
+                        <input type="password" class="form-control" id="id_password2" name="password2" placeholder="Password" required>
+                        <label for="id_password2" class="form-label ps-4">Nhập lại mật khẩu</label>
+                        {% if errors.password2 %}
+                        <div class="text-danger">{{ errors.password2 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3 form-floating">
+                        <input type="text" class="form-control" id="id_address" name="address" placeholder="Địa chỉ" required>
+                        <label for="id_address" class="form-label ps-4">Địa chỉ</label>
+                    </div>
+                    <div class="mb-3 form-check ps-5">
+                        <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
+                        <label class="form-check-label" for="terms">Tôi đồng ý các điều khoản và điều kiện.</label>
+                        {% if errors.terms %}
+                        <div class="text-danger">{{ errors.terms }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="text-center mt-3">
+                        <button type="submit" name="Creat_user" class="btn btn-primary btn-rounded w-75">Đăng ký</button>
+                    </div>
+                    <div class="mb-3 text-center text-secondary mt-3">
+                        Hoặc đăng ký với
+                    </div>
+                    <div class="d-flex justify-content-around mb-3">
+                        <button type="button" class="btn btn-danger btn-rounded"><i class="fa fa-google-plus" aria-hidden="true"></i>  Google</button>
+                        <button type="button" class="btn btn-primary btn-rounded"><i class="fa fa-facebook-square" aria-hidden="true"></i>  Facebook</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+        <div class="col-lg-6 login-image d-none d-lg-block my-auto">
+            <img src="{% static 'images/register-image.png' %}" class="w-100" alt="Login Image">
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -6,7 +6,7 @@ from decimal import Decimal, InvalidOperation
 from django.core.files.base import ContentFile
 from import_export import resources, fields
 from import_export.widgets import ForeignKeyWidget
-from .models import Category, Brand, Product, Feature, ProductFeature
+from .models import Category, Brand, Product, Feature, ProductFeature, ProductImage, Review
 import logging
 
 logger = logging.getLogger(__name__)
@@ -73,8 +73,9 @@ class ProductFeatureInline(admin.TabularInline):
     model = ProductFeature
     extra = 1
 
-class ProductAdmin(admin.ModelAdmin):
-    inlines = [ProductFeatureInline]
+class ProductImageInline(admin.TabularInline):
+    model = ProductImage
+    extra = 2
 
 @admin.register(Product)
 class ProductAdmin(ImportExportModelAdmin, admin.ModelAdmin):
@@ -83,6 +84,8 @@ class ProductAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_filter = ['available', 'created', 'updated', 'brand', 'category']
     list_editable = ['price', 'stock', 'available']
     prepopulated_fields = {'slug': ('name',)}
-    inlines = [ProductFeatureInline]
+    search_fields = ['name','category','brand']
+    inlines = [ProductFeatureInline, ProductImageInline]
 
 admin.site.register(Feature)
+admin.site.register(Review)

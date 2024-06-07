@@ -1,14 +1,56 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login</title>
-</head>
-<body>
-    <h2>Login</h2>
-    <form method="post">
-        {% csrf_token %}
-        <!-- form fields -->
-        <button type="submit">Login</button>
-    </form>
-</body>
-</html>
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}NaniShop - Đăng nhập{% endblock %}
+{% block login %}
+<form method="post" action="{% url 'login' %}">
+    {% csrf_token %}
+    <div class="container" id="screen-login">
+        <div class="row">
+            <div class="col-lg-6 my-auto">
+                <div id="login">
+                    <h4>
+                        Chào mừng đến với <a href="{% url 'index' %}" class="fw-bold text-danger">NaniShop</a>
+                    </h4>
+                    <p class="text-muted">
+                        Vui lòng đăng nhập!
+                    </p>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" name="username" id="floatingInput" placeholder="Username" required>
+                        <label for="floatingInput">Username</label>
+                    </div>
+                    <div class="form-floating mb-2">
+                        <input type="password" class="form-control" name="password" id="floatingPassword" placeholder="Password" required>
+                        <label for="floatingPassword">Mật khẩu</label>
+                    </div>
+                    <div class="n-psw text-end">
+                        <a href="#" class="text-primary">
+                            <span style="font-size:14px;">
+                                Quên mật khẩu?
+                            </span>
+                        </a>
+                    </div>
+                    <button type="submit" class="btn btn-login">Đăng nhập</button>
+                    
+                    <div class="text-center text-muted mt-2 mb-0" style="font-size:14px;"> 
+                        Bạn chưa có tài khoản? 
+                        <a href="{% url 'register' %}" class="text-primary text-decoration-none">Đăng ký</a>
+                    </div>
+                    <div class="other-login">
+                        <button type="button" class="btn btn-other-login">
+                            <img src="{% static 'images/google-icon.png' %}" alt="Google-icon">
+                            Đăng nhập với Google
+                        </button>
+                        <button type="button" class="btn btn-other-login">
+                            <img src="{% static 'images/facebook-icon.png' %}" alt="Facebook-icon">
+                            Đăng nhập với Facebook
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 login-image d-none d-lg-block my-auto">
+                <img src="{% static 'images/login-image.png' %}" class="w-100" alt="Login Image">
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock login %}

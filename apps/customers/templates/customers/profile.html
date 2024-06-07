@@ -1,1 +1,213 @@
-<h1>Đây là trang hồ sơ</h1>
+<!-- templates/customers/profile.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block title %}{{ user }} - Hồ sơ{% endblock %}
+{% block profile %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-grid gap-2 d-md-flex mb-3">
+                <a href="{% url 'products:product_list' %}" class="btn btn-primary me-md-2" role="button">&#x2190; Tiếp tục mua sắm</a>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    {% if customer.gender == 'F' %}
+                    <img src="{% static 'images/girl.webp' %}" class="rounded-circle w-100" alt="avatar">
+                    {% elif customer.gender == 'M' %}
+                    <img src="{% static 'images/boy.png' %}" class="rounded-circle w-100" alt="avatar">
+                    {% else %}
+                    <img src="{% static 'images/none.png' %}" class="rounded-circle w-100" alt="avatar">
+                    {% endif %}
+                    <h1 class="mt-3">{{ customer.name }}</h1>
+                    <p>{{ customer.email }}</p>
+                </div>
+                <ul class="nav flex-column nav-pills" id="profile-tab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" id="profile-tab-link" data-bs-toggle="pill" href="#profile-tab-pane" role="tab" aria-controls="profile-tab-pane" aria-selected="true"><i class="fa fa-user"></i> Hồ sơ</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="favorites-tab-link" data-bs-toggle="pill" href="#favorites-tab-pane" role="tab" aria-controls="favorites-tab-pane" aria-selected="false"><i class="fa fa-heart-o"></i> Yêu thích</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="edit-profile-tab-link" data-bs-toggle="pill" href="#edit-profile-tab-pane" role="tab" aria-controls="edit-profile-tab-pane" aria-selected="false"><i class="fa fa-edit"></i> Sửa hồ sơ</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="change-password-tab-link" data-bs-toggle="pill" href="#change-password-tab-pane" role="tab" aria-controls="change-password-tab-pane" aria-selected="false"><i class="fa fa-key"></i> Đổi mật khẩu</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="tab-content" id="profile-tabContent">
+                <div class="tab-pane fade show active" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab-link">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3>Thông tin hồ sơ</h3>
+                            {% if messages %}
+                            <div class="alert alert-danger">
+                                {% for message in messages %}
+                                    <p>{{ message }}</p>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Họ tên:</strong> {{ customer.name }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Email:</strong> {{ customer.email }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Giới tính:</strong> {{ customer.get_gender_display }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Ngày sinh:</strong> {{ customer.birth_date }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Địa chỉ:</strong> {{ customer.address }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Số điện thoại:</strong> {{ customer.phone_number }}</p>
+                                </div>
+                            </div>
+                            <h3 class="mt-5">Lịch sử mua hàng</h3>
+                            <ul class="list-group">
+                                {% for order in orders %}
+                                    {% if order.orderitem_set.exists %}
+                                    <li class="list-group-item">
+                                        <strong>Order #{{ order.id }}:</strong> {{ order.date_ordered }} - {{ order.get_total_money|currency }} VND
+                                        <ul class="list-group mt-2">
+                                            {% for item in order.orderitem_set.all %}
+                                            <li class="list-group-item">
+                                                {{ item.product.name|slice:":40" }}{% if item.product.name|length > 40 %}...{% endif %} --- (x{{ item.quantity }}) --- {{ item.get_total|currency }} VND
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="favorites-tab-pane" role="tabpanel" aria-labelledby="favorites-tab-link">
+                    <div class="card">
+                        <h3 class="col-12">Danh sách yêu thích</h3>
+                        <div class="card-body row">
+                            {% for product in favorites %}
+                            <div class="col-md-4 col-xs-6">
+                                <div class="product">
+                                    <div class="product-img">
+                                        <img src="{{ product.ImageURL }}" alt="{{ product.name }}" height="275">
+                                        <div class="product-label">
+                                        {% if product.promotion %}
+                                        <span class="sale">-{{ product.promotion_discount }}%</span>
+                                        {% endif %}
+                                        {% if product.new %}
+                                        <span class="new">NEW</span>
+                                        {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="product-body">
+                                        <p class="product-category">{{ product.category.name }}</p>
+                                        <h3 class="product-name"><a href="{% url 'products:product_detail' product.slug %}">{{ product.name|slice:":40" }}{% if product.name|length > 40 %}...{% endif %}</a></h3>
+                                        {% if product.promotion %}
+                                        <h4 class="product-price">{{ product.price_after_discount|currency }}₫ <del class="product-old-price">{{ product.price|currency }}₫</del></h4>
+                                        {% else %}
+                                        <h4 class="product-price">{{ product.price|currency }}₫</h4>
+                                        {% endif %}
+                                        <div class="product-rating">
+                                            {% for i in "12345" %}
+                                            <i class="fa fa-star{% if product.rating < i %}-o{% endif %}"></i>
+                                            {% endfor %}
+                                        </div>
+                                        <div class="product-btns row justify-content-center">
+                                            <form method="post" action="{% url 'add_to_favorites' product.id %}" class="col-4 justify-content-center d-flex">
+                                                {% csrf_token %}
+                                                <button class="add-to-wishlist"><i class="fa fa-trash" aria-hidden="true"></i><a href="{% url 'add_to_favorites' product.id %}" class="btn btn-sm btn-outline-danger fade"></a><span class="tooltipp">Xoá</span></button>
+                                            </form>
+                                            <button class="add-to-compare col-4"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
+                                            <button class="quick-view col-4"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
+                                        </div>
+                                    </div>
+                                    <div class="add-to-cart">
+                                        <button class="add-to-cart-btn update-cart" data-product={{product.id}} data-action="add"><i class="fa fa-shopping-cart"></i> add to cart</button>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="edit-profile-tab-pane" role="tabpanel" aria-labelledby="edit-profile-tab-link">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3>Chỉnh sửa hồ sơ</h3>
+                            <form method="post">
+                                {% csrf_token %}
+                                <div class="mb-3 form-floating">
+                                    <input type="text" class="form-control" id="id_address" name="address" value="{{ customer.address }}" placeholder="Address">
+                                    <label for="id_address">Địa chỉ</label>
+                                </div>
+                                <div class="mb-3 form-floating">
+                                    <input type="text" class="form-control" id="id_phone_number" name="phone_number" value="{{ customer.phone_number }}" placeholder="Phone Number">
+                                    <label for="id_phone_number">Số điện thoại</label>
+                                </div>
+                                <div class="mb-3 form-floating">
+                                    <input type="date" class="form-control" id="id_birth_date" name="birth_date" value="{{ customer.birth_date }}" placeholder="Birth Date">
+                                    <label for="id_birth_date">Ngày sinh</label>
+                                </div>
+                                <div class="mb-3 form-floating">
+                                    <select class="form-select" id="id_gender" name="gender">
+                                        <option value="M" {% if customer.gender == 'M' %}selected{% endif %}>Nam</option>
+                                        <option value="F" {% if customer.gender == 'F' %}selected{% endif %}>Nữ</option>
+                                        <option value="O" {% if customer.gender == 'O' %}selected{% endif %}>Khác</option>
+                                    </select>
+                                    <label for="id_gender">Giới tính</label>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Cập nhật hồ sơ</button>
+                                <button type="button" id="cancel-edit-btn" class="btn btn-danger">Huỷ</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="change-password-tab-pane" role="tabpanel" aria-labelledby="change-password-tab-link">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3>Đổi mật khẩu</h3>
+                            <form method="post" action="{% url 'change_password' %}">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label for="id_old_password" class="form-label">Mật khẩu cũ</label>
+                                    <input type="password" class="form-control" id="id_old_password" name="old_password" required>
+                                    {% if form.old_password.errors %}
+                                    <div class="text-danger">{{ form.old_password.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="id_new_password1" class="form-label">Mật khẩu mới</label>
+                                    <input type="password" class="form-control" id="id_new_password1" name="new_password1" required>
+                                    {% if form.new_password1.errors %}
+                                    <div class="text-danger">{{ form.new_password1.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="id_new_password2" class="form-label">Xác nhận mật khẩu mới</label>
+                                    <input type="password" class="form-control" id="id_new_password2" name="new_password2" required>
+                                    {% if form.new_password2.errors %}
+                                    <div class="text-danger">{{ form.new_password2.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <button type="submit" class="btn btn-primary">Đổi mật khẩu</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock profile %}

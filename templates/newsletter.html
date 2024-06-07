@@ -1,0 +1,31 @@
+{% load static %}
+<div id="newsletter" class="section bg-light py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <div class="newsletter">
+                    <p>Đăng ký nhận <strong class="text-danger">KHUYẾN MÃI</strong></p>
+                    <form class="d-flex justify-content-center" method="post" action="{% url 'newsletter_signup' %}">
+                        {% csrf_token %}
+                        <input class="form-control" type="email" name="email" placeholder="Nhập Email" required>
+                        <button class="btn btn-primary newsletter-btn"><i class="fa fa-envelope"></i> Đăng ký</button>
+                    </form>
+                    <ul class="newsletter-follow d-flex justify-content-center list-unstyled mt-3">
+                        <li class="me-2">
+                            <a href="#"><i class="fa fa-facebook"></i></a>
+                        </li>
+                        <li class="me-2">
+                            <a href="#"><i class="fa fa-twitter"></i></a>
+                        </li>
+                        <li class="me-2">
+                            <a href="#"><i class="fa fa-instagram"></i></a>
+                        </li>
+                        <li>
+                            <a href="#"><i class="fa fa-pinterest"></i></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
