@@ -26,9 +26,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure--&d8+veb4^r*c*7%kt%w3(-*r+7mdvdi^0+t63x^r_4lb_=gfp'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['103.75.182.207']
 
 
 # Application definition
@@ -113,11 +113,11 @@ WSGI_APPLICATION = 'Nanishop.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'nanishop_db',
-        'USER': 'root',
-        'PASSWORD': '',
+        'NAME': 'nanishop',
+        'USER': 'nanishop',
+        'PASSWORD': 'Th@nhSon11@2',
         'HOST': 'localhost',
-        'PORT': '',
+        'PORT': '3306',
     }
 }
 
@@ -146,7 +146,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Ho_Chi_Minh'
 
 USE_I18N = True
 
